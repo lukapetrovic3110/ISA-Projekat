@@ -258,22 +258,22 @@ public class DermatologistService implements IDermatologistService {
 	
 	@Override
 	public Dermatologist createDermatologistByPharmacyAdmin(CreateDermatologistDTO createDermatologistDTO) {
-		// Pharmacy pharmacy = _pharmacyRepository.getOne(createDermatologistDTO.getPharmacyId());
+		Pharmacy pharmacy = _pharmacyRepository.getOne(createDermatologistDTO.getPharmacyId());
 		User findUser = _userRepository.findByEmail(createDermatologistDTO.getEmail()); 
 		if (findUser != null) {
 			return null;
 		}
 		Dermatologist newDermatologist = new Dermatologist();
-		Address pharmacistAddress = new Address();
-		pharmacistAddress = createDermatologistDTO.getAddress();
-		newDermatologist.setAddress(pharmacistAddress);
-		this._addressService.createAddress(pharmacistAddress);
+		Address dermatologistAddress = new Address();
+		dermatologistAddress = createDermatologistDTO.getAddress();
+		newDermatologist.setAddress(dermatologistAddress);
+		this._addressService.createAddress(dermatologistAddress);
 		newDermatologist.setEnabled(true);
 		newDermatologist.setFirstLogin(false);
 		newDermatologist.setFirstName(createDermatologistDTO.getFirstName());
-		newDermatologist.setLastName(createDermatologistDTO.getFirstName());
+		newDermatologist.setLastName(createDermatologistDTO.getLastName());
 		newDermatologist.setEmail(createDermatologistDTO.getEmail());
-		newDermatologist.setUserType(UserType.PHARMACIST);
+		newDermatologist.setUserType(UserType.DERMATOLOGIST);
 		byte[] salt = generateSalt();
 		String encodedSalt = Base64.getEncoder().encodeToString(salt);
 		newDermatologist.setSalt(encodedSalt);
@@ -283,7 +283,10 @@ public class DermatologistService implements IDermatologistService {
 		newDermatologist.setPhoneNumber(createDermatologistDTO.getPhoneNumber());
 		List<Authority> authorities = _authorityService.findByName("ROLE_DERMATOLOGIST");
 		newDermatologist.setAuthorities(authorities);
+		newDermatologist.setRating(0.0);
 		// set Pharmacy
+		pharmacy.getDermatologist().add(newDermatologist);
+		_pharmacyRepository.save(pharmacy);
 		return _dermatologistRepository.save(newDermatologist);
 	}
 	

@@ -2,9 +2,8 @@ package rs.ac.uns.ftn.informatika.jpa.iservice;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Set;
 
-import rs.ac.uns.ftn.informatika.jpa.dto.ConsultationDTO;
+import rs.ac.uns.ftn.informatika.jpa.dto.CreateWorkSchedulePharmacistDTO;
 import rs.ac.uns.ftn.informatika.jpa.model.Consultation;
 import rs.ac.uns.ftn.informatika.jpa.model.Pharmacist;
 import rs.ac.uns.ftn.informatika.jpa.model.PharmacistVacation;
@@ -17,6 +16,11 @@ public interface IWorkSchedulePharmacistService {
 			WorkSchedulePharmacist workSchedule);
 	ArrayList<Pharmacist> getAvailablePharmacistsInPharmacy(Date date, Long pharmacyId,
 			ArrayList<PharmacistVacation> vacations);
+
 	void addNewConsultationToWorkSchedule(Consultation c, ArrayList<PharmacistVacation> vacations);
 	Boolean addConsToWorkSchedule(Consultation c, ArrayList<PharmacistVacation> vacations);
+
+	WorkSchedulePharmacist createPharmacistWorkSchedule(
+			CreateWorkSchedulePharmacistDTO createWorkSchedulePharmacistDTO);
+
 }

@@ -12,6 +12,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -19,9 +20,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 import rs.ac.uns.ftn.informatika.jpa.dto.AppointmentDateAndTimeDTO;
 import rs.ac.uns.ftn.informatika.jpa.dto.ConsultationDTO;
+import rs.ac.uns.ftn.informatika.jpa.dto.CreateWorkSchedulePharmacistDTO;
 import rs.ac.uns.ftn.informatika.jpa.model.Pharmacist;
 import rs.ac.uns.ftn.informatika.jpa.model.PharmacistVacation;
 import rs.ac.uns.ftn.informatika.jpa.model.Pharmacy;
+import rs.ac.uns.ftn.informatika.jpa.model.WorkSchedulePharmacist;
 import rs.ac.uns.ftn.informatika.jpa.service.PharmacistVacationService;
 import rs.ac.uns.ftn.informatika.jpa.service.WorkSchedulePharmacistService;
 
@@ -97,6 +100,12 @@ public class WorkSchedulePharmacistController {
 		ArrayList<PharmacistVacation> vacations = (ArrayList<PharmacistVacation>) _pharmacistVacationService.findAllAcceptedVacations();
 		ArrayList<Pharmacist> p =  _workSchedulePharmacist.getAvailablePharmacistsInPharmacy(date, id, vacations);
 		return new ResponseEntity<ArrayList<Pharmacist>>(p, HttpStatus.OK);
+	}
+	
+	@PreAuthorize("hasRole('ROLE_PH_ADMIN')")
+	@PostMapping(value = "/createPharmacistWorkSchedule")
+	public ResponseEntity<WorkSchedulePharmacist> createPharmacistWorkSchedule(@RequestBody CreateWorkSchedulePharmacistDTO createWorkSchedulePharmacistDTO) {
+		return new ResponseEntity<WorkSchedulePharmacist>(_workSchedulePharmacist.createPharmacistWorkSchedule(createWorkSchedulePharmacistDTO), HttpStatus.CREATED);
 	}
 
 }

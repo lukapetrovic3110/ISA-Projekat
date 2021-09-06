@@ -49,6 +49,14 @@ public class WorkSchedulePharmacist {
 		this.pharmacist = pharmacist;
 		this.pharmacy = pharmacy;
 	}
+	
+	public WorkSchedulePharmacist(TimeInterval validFor, TimeInterval shift, Pharmacist pharmacist, Pharmacy pharmacy) {
+		super();
+		this.validFor = validFor;
+		this.shift = shift;
+		this.pharmacist = pharmacist;
+		this.pharmacy = pharmacy;
+	}
 
 	public Long getWorkScheduleId() {
 		return workScheduleId;

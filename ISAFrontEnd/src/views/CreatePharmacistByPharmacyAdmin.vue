@@ -43,7 +43,7 @@
               prepend-icon="mdi-account-circle"
             />
             <v-autocomplete
-              class="countryCombo"
+              class="combo"
               v-model="country"
               :rules="[() => !!country || 'This field is required']"
               :items="countries"
@@ -89,6 +89,50 @@
               prepend-icon="mdi-lock"
               @click:append="showPassword = !showPassword"
             />
+            <v-autocomplete
+              class="combo"
+              v-model="shift"
+              :rules="[() => !!shift || 'This field is required']"
+              :items="shifts"
+              label="Shifts"
+              placeholder="Select shift for pharmacist"
+            />
+            <v-text-field
+              class="ml-10 mr-10 mt-10 text-center"
+              color="blue"
+              type="text"
+              v-bind:readonly="true"
+              value="Select start date valid for shift"
+            >
+            </v-text-field>
+            <v-date-picker
+              width="100%"
+              class="ml-10 mr-10 mt-4"
+              v-model="startValidFor"
+               :rules="[() => !!startValidFor || 'This field is required']"
+              :allowed-dates="disablePastDates"
+              :format="datePickerFormat"
+              color="green lighten-1"
+              header-color="primary"
+            ></v-date-picker>
+            <v-text-field
+              class="ml-10 mr-10 mt-10 text-center"
+              color="blue"
+              type="text"
+              v-bind:readonly="true"
+              value="Select end date valid for shift"
+            >
+            </v-text-field>
+            <v-date-picker
+              width="100%"
+              class="ml-10 mr-10 mt-4"
+              v-model="endValidFor"
+              :allowed-dates="disablePastDates"
+                :rules="[() => !!endValidFor || 'This field is required']"
+              :format="datePickerFormat"
+              color="green lighten-1"
+              header-color="primary"
+            ></v-date-picker>
           </v-form>
         </v-card-text>
         <v-card-actions>
@@ -128,6 +172,10 @@ export default {
       "Crna Gora",
       "Hrvatska",
     ],
+    shifts: [
+      "SHIFT1-7:15",
+      "SHIFT2-15:20",
+    ],
     errorMessages: "",
     showPassword: false,
     email: "",
@@ -137,12 +185,16 @@ export default {
     streetName: "",
     streetNumber: "",
     city: "",
+    shift: "",
     country: "",
     phoneNumber: "",
     repeatedPassword: "",
     pharmacist: null,
     pharmacy: null,
     pharmacyName: "",
+    startValidFor: "",
+    endValidFor: "",
+    datePickerFormat: "dd.MM.yyyy.",
   }),
   computed: {
     passwordConfirmationRule() {
@@ -151,9 +203,13 @@ export default {
     },
   },
   mounted() {
+    
     this.initialize();
   },
   methods: {
+     disablePastDates(val) {
+      return val >= new Date().toISOString().substr(0, 10);
+    },
     initialize() {
       this.axios
         .get(
@@ -173,16 +229,14 @@ export default {
         .catch((err) => console.log(err));
     },
     createPharmacist() {
-      console.log(this.email);
-      console.log(this.password);
-      console.log(this.firstName);
-      console.log(this.lastName);
 
-      console.log(this.phoneNumber);
-      console.log(this.streetName);
-      console.log(this.city);
-      console.log(this.country);
-      console.log(localStorage.getItem("pharmacyId"));
+      console.log(this.startValidFor);
+      console.log(this.endValidFor);
+      console.log(this.shift);
+
+      if (this.startValidFor == "" || this.endValidFor == "" || this.shift == "") {
+        alert("Please, redefine the validity dates of the shift or the shift itself");
+      }
 
       this.axios
         .post(
@@ -239,7 +293,7 @@ export default {
   width: 40%;
   margin: auto;
 }
-.countryCombo {
+.combo {
   width: 96%;
   margin-left: 5%;
   cursor: pointer;

@@ -3,8 +3,6 @@ package rs.ac.uns.ftn.informatika.jpa.service;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import javax.persistence.LockModeType;
@@ -12,16 +10,19 @@ import javax.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.Lock;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
-import rs.ac.uns.ftn.informatika.jpa.dto.ConsultationDTO;
+import rs.ac.uns.ftn.informatika.jpa.dto.CreateWorkSchedulePharmacistDTO;
 import rs.ac.uns.ftn.informatika.jpa.iservice.IWorkSchedulePharmacistService;
 import rs.ac.uns.ftn.informatika.jpa.model.Consultation;
 import rs.ac.uns.ftn.informatika.jpa.model.Pharmacist;
 import rs.ac.uns.ftn.informatika.jpa.model.PharmacistVacation;
 import rs.ac.uns.ftn.informatika.jpa.model.Pharmacy;
+import rs.ac.uns.ftn.informatika.jpa.model.PharmacyAdministrator;
 import rs.ac.uns.ftn.informatika.jpa.model.TimeInterval;
 import rs.ac.uns.ftn.informatika.jpa.model.WorkSchedulePharmacist;
+import rs.ac.uns.ftn.informatika.jpa.repository.IPharmacistRepository;
 import rs.ac.uns.ftn.informatika.jpa.repository.IWorkSchedulePharmacistRepository;
 
 @Service
@@ -29,7 +30,10 @@ public class WorkSchedulePharmacistService implements IWorkSchedulePharmacistSer
 
 	@Autowired
 	private IWorkSchedulePharmacistRepository _workScheduleRepository;
-
+	
+	@Autowired
+	private IPharmacistRepository _pharmacistRepository;
+	
 	@Override
 	public ArrayList<Pharmacy> getAvailablePharmacies(Date date, ArrayList<PharmacistVacation> vacations) {
 		
@@ -298,6 +302,32 @@ public class WorkSchedulePharmacistService implements IWorkSchedulePharmacistSer
 		workSchedule.getScheduledConsultations().add(c);
 		_workScheduleRepository.save(workSchedule);
 		return true;
+	}
+	
+	@Override
+	public WorkSchedulePharmacist createPharmacistWorkSchedule(
+			CreateWorkSchedulePharmacistDTO createWorkSchedulePharmacistDTO) {
+		PharmacyAdministrator pAdmin = (PharmacyAdministrator) SecurityContextHolder.getContext().getAuthentication()
+				.getPrincipal();
+		
+		Pharmacy pharmacy = pAdmin.getPharmacy();
+		Pharmacist pharmacist = _pharmacistRepository.getOne(createWorkSchedulePharmacistDTO.getPharmacistId());
+		Date startValidFor = createWorkSchedulePharmacistDTO.getStartValidFor();
+		Date endValidFor = createWorkSchedulePharmacistDTO.getEndValidFor();
+		TimeInterval validFor = new TimeInterval(startValidFor, endValidFor);
+		String shift = createWorkSchedulePharmacistDTO.getShift();
+		String[] shiftPom = shift.split("-",2);
+		String[] shiftHours = shiftPom[1].split(":", 2);
+		String startShiftStr = shiftHours[0];
+		String endShiftStr = shiftHours[1];
+		Calendar startShift = Calendar.getInstance();
+		startShift.setTime(startValidFor);
+		startShift.add(Calendar.HOUR, Integer.parseInt(startShiftStr));
+		Calendar endShift = Calendar.getInstance();
+		endShift.setTime(endValidFor);
+		endShift.add(Calendar.HOUR, Integer.parseInt(endShiftStr));
+		TimeInterval shiftInterval = new TimeInterval(startShift.getTime(), endShift.getTime());
+		return new WorkSchedulePharmacist(validFor, shiftInterval, pharmacist, pharmacy);
 	}
 
 }
