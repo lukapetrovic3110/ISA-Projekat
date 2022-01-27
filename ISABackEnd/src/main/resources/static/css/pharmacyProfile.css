@@ -1,0 +1,12 @@
+#pharmacyProfile h1{
+    margin-left: 38%;
+    margin-top: 1em;
+    margin-bottom: 1em;
+}
+
+#pharmacyProfileForm
+{
+    font-size: 1em;
+    width: 45%;
+    margin-bottom: 10%;
+}
